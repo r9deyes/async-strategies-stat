@@ -3,9 +3,7 @@ import itertools
 import time
 
 from typing import Any
-from async_task_executors import COROUTINES_LIMIT
-
-from random_ import BaseStrategy
+from .base import COROUTINES_LIMIT, BaseStrategy
 
 
 def chunk(iterable, n):
@@ -25,4 +23,3 @@ class ChunkedGather(BaseStrategy):
                 *(self.sleep_coro(f"Ch{j}Coro-{i}", arg) for i, arg in enumerate(coro_args_chunk))
             )
         self.total_slept_for = time.monotonic() - started_at
-        # print(f'\n{COROUTINES_LIMIT} tasks slept in parallel for {total_slept_for:.4f} seconds')

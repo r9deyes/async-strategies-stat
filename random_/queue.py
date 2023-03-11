@@ -6,7 +6,7 @@ from datetime import datetime
 
 from typing import Any
 
-from random_ import COROUTINES_LIMIT, BaseStrategy
+from .base import COROUTINES_LIMIT, BaseStrategy
 
 
 class Queue(BaseStrategy):
@@ -21,7 +21,6 @@ class Queue(BaseStrategy):
             # Notify the queue that the "work item" has been processed.
             queue.task_done()
 
-            # print(f'{name} has slept for {sleep_for:.4f} seconds')
 
 
     async def do(self, coro_args: list[Any]):
@@ -48,5 +47,3 @@ class Queue(BaseStrategy):
             task.cancel()
         # Wait until all worker tasks are cancelled.
         await asyncio.gather(*tasks, return_exceptions=True)
-
-        # print(f'\n{COROUTINES_LIMIT} workers slept in parallel for {total_slept_for:.4f} seconds')

@@ -4,7 +4,7 @@ import random
 import time
 from datetime import datetime
 
-from random_ import BaseStrategy
+from .base import BaseStrategy
 
 class SimpleGather(BaseStrategy):
 

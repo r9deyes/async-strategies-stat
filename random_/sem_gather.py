@@ -2,13 +2,12 @@ import asyncio
 import time
 
 from typing import List
-from async_task_executors import COROUTINES_LIMIT
-
-from random_ import BaseStrategy
+from .base import COROUTINES_LIMIT, BaseStrategy
 
 
 class SemGather(BaseStrategy):
     async def gather_with_concurrency(
+        self,
         *coroutines,
         limit: int = 3,
     ):
@@ -28,4 +27,3 @@ class SemGather(BaseStrategy):
             limit=COROUTINES_LIMIT,
         )
         total_slept_for = time.monotonic() - started_at
-        # print(f'\n{COROUTINES_LIMIT} tasks slept in parallel for {total_slept_for:.4f} seconds')
