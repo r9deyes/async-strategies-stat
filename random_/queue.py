@@ -40,7 +40,7 @@ class Queue(BaseStrategy):
         # Wait until the queue is fully processed.
         started_at = time.monotonic()
         await queue.join()
-        self.total_slept_for = time.monotonic() - started_at
+        self.total_slept_for += time.monotonic() - started_at
 
         # Cancel our worker tasks.
         for task in tasks:

@@ -22,4 +22,4 @@ class ChunkedGather(BaseStrategy):
             await asyncio.gather(
                 *(self.sleep_coro(f"Ch{j}Coro-{i}", arg) for i, arg in enumerate(coro_args_chunk))
             )
-        self.total_slept_for = time.monotonic() - started_at
+        self.total_slept_for += time.monotonic() - started_at

@@ -26,4 +26,4 @@ class SemGather(BaseStrategy):
             *(self.sleep_coro(f"SemCoro-{i}", arg) for i, arg in enumerate(coro_args)),
             limit=COROUTINES_LIMIT,
         )
-        total_slept_for = time.monotonic() - started_at
+        self.total_slept_for += time.monotonic() - started_at
