@@ -11,4 +11,4 @@ class SimpleGather(BaseStrategy):
     async def do(self, coro_args):
         started_at = time.monotonic()
         await asyncio.gather(*(self.sleep_coro(f"GathCoro-{i}", arg) for i, arg in enumerate(coro_args)))
-        self.total_slept_for = time.monotonic() - started_at
+        self.total_slept_for += time.monotonic() - started_at
