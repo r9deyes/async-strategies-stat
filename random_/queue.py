@@ -4,7 +4,7 @@ import random
 import time
 from datetime import datetime
 
-from typing import Any
+from typing import Any, List
 
 from .base import COROUTINES_LIMIT, BaseStrategy
 
@@ -23,7 +23,7 @@ class Queue(BaseStrategy):
 
 
 
-    async def do(self, coro_args: list[Any]):
+    async def do(self, coro_args: List[Any]):
         # Create a queue that we will use to store our "workload".
         queue = asyncio.Queue()
 

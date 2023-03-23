@@ -2,7 +2,7 @@ import asyncio
 import itertools
 import time
 
-from typing import Any
+from typing import Any, List
 from .base import COROUTINES_LIMIT, BaseStrategy
 
 
@@ -16,7 +16,7 @@ def chunk(iterable, n):
 
 
 class ChunkedGather(BaseStrategy):
-    async def do(self, coro_args: list[Any]):
+    async def do(self, coro_args: List[Any]):
         started_at = time.monotonic()
         for j, coro_args_chunk in enumerate(chunk(coro_args, COROUTINES_LIMIT)):
             await asyncio.gather(

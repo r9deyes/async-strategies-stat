@@ -4,7 +4,7 @@ import os
 import random
 import sys
 import time
-from typing import Any
+from typing import Any, List, Dict
 
 COROUTINES_COUNT = int(os.environ.get('COROUTINES_COUNT', 1000))
 COROUTINES_LIMIT = int(os.environ.get('COROUTINES_LIMIT', 100))
@@ -32,7 +32,7 @@ class BaseStrategy:
 
         self._coros_time.append((slept_for,  sleep_sec))
     
-    async def do(self, coro_args: list[Any]):
+    async def do(self, coro_args: List[Any]):
         ...
 
     def min_coro_time(self) -> float:
@@ -53,7 +53,7 @@ class BaseStrategy:
 
 async def main(args):
     from . import gather, sem_gather, queue, chunked_gather
-    strategies: dict[str, BaseStrategy] = {
+    strategies: Dict[str, BaseStrategy] = {
         'gather': gather.SimpleGather(),
         'sem_gather': sem_gather.SemGather(),
         'chunked_gather': chunked_gather.ChunkedGather(),
@@ -73,6 +73,8 @@ async def main(args):
     
     if not args.format:
         format_str = '{random_seed},{coroutines_count},{coroutines_limit},{await_count},{expected_sleep_time},{total_slept_for},{min_coro_time},{max_coro_time},{avg_coro_time},{median_coro_time},{total_diff_elapsed_time}'
+    else:
+        format_str = args.format
 
     # stats values
     sys.stdout.write(format_str.format(
@@ -89,9 +91,12 @@ async def main(args):
         total_diff_elapsed_time=strategy.total_diff_elapsed_time(),
     )+"\n")
 
+
 def print_head(args):
     if not args.format:
         format_str = '{random_seed},{coroutines_count},{coroutines_limit},{await_count},{expected_sleep_time},{total_slept_for},{min_coro_time},{max_coro_time},{avg_coro_time},{median_coro_time},{total_diff_elapsed_time}'
+    else:
+        format_str = args.format
 
     sys.stdout.write(format_str.format(
         random_seed='random_seed',
