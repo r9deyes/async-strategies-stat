@@ -38,9 +38,9 @@ class Queue(BaseStrategy):
             tasks.append(task)
 
         # Wait until the queue is fully processed.
-        started_at = time.monotonic()
+        self.init_time = time.monotonic()
         await queue.join()
-        self.total_slept_for += time.monotonic() - started_at
+        self.total_slept_for += time.monotonic() - self.init_time
 
         # Cancel our worker tasks.
         for task in tasks:

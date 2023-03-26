@@ -21,9 +21,9 @@ class SemGather(BaseStrategy):
 
 
     async def do(self, coro_args: List):
-        started_at = time.monotonic()
+        self.init_time = time.monotonic()
         await self.gather_with_concurrency(
             *(self.sleep_coro(f"SemCoro-{i}", arg) for i, arg in enumerate(coro_args)),
             limit=COROUTINES_LIMIT,
         )
-        self.total_slept_for += time.monotonic() - started_at
+        self.total_slept_for += time.monotonic() - self.init_time

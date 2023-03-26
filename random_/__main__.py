@@ -15,6 +15,7 @@ if __name__ == '__main__':
     {coroutines_count},
     {coroutines_limit},
     {await_count},
+    {awaits_time},
     {expected_sleep_time},
 {total_slept_for},
 {min_coro_time},

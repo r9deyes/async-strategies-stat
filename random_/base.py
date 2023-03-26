@@ -4,11 +4,11 @@ import os
 import random
 import sys
 import time
-from typing import Any, List, Dict
+from typing import Any, List, Tuple, Dict
 
-COROUTINES_COUNT = int(os.environ.get('COROUTINES_COUNT', 1000))
-COROUTINES_LIMIT = int(os.environ.get('COROUTINES_LIMIT', 100))
-AWAIT_COUNT = int(os.environ.get('AWAIT_COUNT', 100))
+COROUTINES_COUNT = int(os.environ.get('COROUTINES_COUNT', 10))
+COROUTINES_LIMIT = int(os.environ.get('COROUTINES_LIMIT', 4))
+AWAIT_COUNT = int(os.environ.get('AWAIT_COUNT', 14))
 SLEEP_TIME = float(os.environ.get('SLEEP_TIME', 0.05))
 
 RANDOM_SEED = os.environ.get('RANDOM_SEED', datetime.datetime.utcnow().timestamp())
@@ -20,19 +20,28 @@ class BaseStrategy:
     Base async strategy. Implement common sleep_coro function with counting
     """
     def __init__(self): 
+        self.init_time = None
+        self.awaits_time: List[Tuple[str, float, float]] = []
         self.total_slept_for = 0
-        self._coros_time = []
+        self._coros_time: List[Tuple[float, float]] = []
 
     async def sleep_coro(self, name: str, sleep_sec: float):
         started_at = time.monotonic()
         for i in range(AWAIT_COUNT):
+            before_await = time.monotonic()
             await asyncio.sleep(sleep_sec / AWAIT_COUNT)
+            after_await = time.monotonic()
+            
+            self.awaits_time.append(
+                (name, before_await - self.init_time, after_await-self.init_time)
+            )
 
         slept_for = time.monotonic() - started_at
 
         self._coros_time.append((slept_for,  sleep_sec))
     
     async def do(self, coro_args: List[Any]):
+        self.init_time = time.monotonic()
         ...
 
     def min_coro_time(self) -> float:
@@ -76,20 +85,38 @@ async def main(args):
     else:
         format_str = args.format
 
-    # stats values
-    sys.stdout.write(format_str.format(
-        random_seed=RANDOM_SEED,
-        coroutines_count=COROUTINES_COUNT,
-        coroutines_limit=COROUTINES_LIMIT,
-        await_count=AWAIT_COUNT,
-        expected_sleep_time=expected_sleep_time,
-        total_slept_for=strategy.total_slept_for,
-        min_coro_time=strategy.min_coro_time(),
-        max_coro_time=strategy.max_coro_time(),
-        avg_coro_time=strategy.avg_coro_time(),
-        median_coro_time=strategy.median_coro_time(),
-        total_diff_elapsed_time=strategy.total_diff_elapsed_time(),
-    )+"\n")
+    if '{awaits_time}' in  format_str:
+        for at in strategy.awaits_time:
+            sys.stdout.write(format_str.format(
+                    random_seed=RANDOM_SEED,
+                    coroutines_count=COROUTINES_COUNT,
+                    coroutines_limit=COROUTINES_LIMIT,
+                    await_count=AWAIT_COUNT,
+                    awaits_time='{},{:f},{:f}'.format(*at),
+                    expected_sleep_time=expected_sleep_time,
+                    total_slept_for=strategy.total_slept_for,
+                    min_coro_time=strategy.min_coro_time(),
+                    max_coro_time=strategy.max_coro_time(),
+                    avg_coro_time=strategy.avg_coro_time(),
+                    median_coro_time=strategy.median_coro_time(),
+                    total_diff_elapsed_time=strategy.total_diff_elapsed_time(),
+                )+"\n"
+            )
+    else: 
+        # stats values
+        sys.stdout.write(format_str.format(
+            random_seed=RANDOM_SEED,
+            coroutines_count=COROUTINES_COUNT,
+            coroutines_limit=COROUTINES_LIMIT,
+            await_count=AWAIT_COUNT,
+            expected_sleep_time=expected_sleep_time,
+            total_slept_for=strategy.total_slept_for,
+            min_coro_time=strategy.min_coro_time(),
+            max_coro_time=strategy.max_coro_time(),
+            avg_coro_time=strategy.avg_coro_time(),
+            median_coro_time=strategy.median_coro_time(),
+            total_diff_elapsed_time=strategy.total_diff_elapsed_time(),
+        )+"\n")
 
 
 def print_head(args):
@@ -103,6 +130,7 @@ def print_head(args):
         coroutines_count='coroutines_count',
         coroutines_limit='coroutines_limit',
         await_count='awaitings_count',
+        awaits_time='coro_name,await_start,await_end',
         expected_sleep_time='expected_sleep_time',
         total_slept_for='total_slept_for',
         min_coro_time='min_coro_time',
