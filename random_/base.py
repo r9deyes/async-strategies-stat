@@ -81,7 +81,8 @@ async def main(args):
     await strategy.do(coro_args)
     
     if not args.format:
-        format_str = '{random_seed},{coroutines_count},{coroutines_limit},{await_count},{expected_sleep_time},{total_slept_for},{min_coro_time},{max_coro_time},{avg_coro_time},{median_coro_time},{total_diff_elapsed_time}'
+        format_str = '{random_seed},{coroutines_count},{coroutines_limit},{await_count},{expected_sleep_time},'
+        '{total_slept_for},{min_coro_time},{max_coro_time},{avg_coro_time},{median_coro_time},{total_diff_elapsed_time}'
     else:
         format_str = args.format
 
@@ -121,7 +122,8 @@ async def main(args):
 
 def print_head(args):
     if not args.format:
-        format_str = '{random_seed},{coroutines_count},{coroutines_limit},{await_count},{expected_sleep_time},{total_slept_for},{min_coro_time},{max_coro_time},{avg_coro_time},{median_coro_time},{total_diff_elapsed_time}'
+        format_str = '{random_seed},{coroutines_count},{coroutines_limit},{await_count},{expected_sleep_time},'
+        '{total_slept_for},{min_coro_time},{max_coro_time},{avg_coro_time},{median_coro_time},{total_diff_elapsed_time}'
     else:
         format_str = args.format
 

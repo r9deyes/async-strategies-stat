@@ -10,13 +10,16 @@ from .base import COROUTINES_LIMIT, BaseStrategy
 
 
 class Queue(BaseStrategy):
+    coro_count: int = 0
+
     async def queue_worker(self, name, queue):
         while True:
             # Get a "work item" out of the queue.
             sleep_for = await queue.get()
+            self.coro_count += 1
 
             # Sleep for the "sleep_for" seconds.
-            await self.sleep_coro(name, sleep_for)
+            await self.sleep_coro(name+f'coro-{self.coro_count}', sleep_for)
 
             # Notify the queue that the "work item" has been processed.
             queue.task_done()
