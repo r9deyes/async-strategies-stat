@@ -46,7 +46,7 @@ if __name__=='__main__':
         format = f'--format {args.format}'
 
     sys.stdout.write(
-        os.popen(f'python -m random_ head {format}').read()
+        os.popen(f'python3.10 -m random_ head {format}').read()
     )
 
     for c_count in range(*coro_count):
@@ -56,5 +56,5 @@ if __name__=='__main__':
             for a_count in range(*await_count):
                 os.putenv('AWAIT_COUNT', str(a_count))
                 sys.stdout.write(
-                    os.popen(f'python -m random_ {args.strategy} {format}').read()
+                    os.popen(f'python3.10 -m random_ {args.strategy} {format}').read()
                 )
