@@ -12,7 +12,7 @@ class Modes:
     queue = 'queue'
 
 os.environ['RANDOM_SEED'] = RANDOM_SEED = os.environ.get('RANDOM_SEED', '4321')
-os.environ['SLEEP_TIME'] = SLEEP_TIME = os.environ.get('SLEEP_TIME', '1')
+os.environ['SLEEP_TIME'] = SLEEP_TIME = os.environ.get('SLEEP_TIME', '0.1')
 os.environ['SLEEP_TIME_MAX'] = SLEEP_TIME_MAX = os.environ.get('SLEEP_TIME_MAX', '1')
 
 
@@ -81,24 +81,46 @@ def add_plot(coroutines_count, coroutines_limit, await_count, mode, ax):
         range(len(coros)),
     ))
 
-    verts = []
+    if len(data) < 300:
+        verts = []
 
-    for d in data:
-        v =  [
-            (cats[d[0]]-.4, d[1]),  # down-left
-            (cats[d[0]]+.4, d[1]),  # upper-left
-            (cats[d[0]]+.3, d[2]),  # upper-right
-            (cats[d[0]]-.3, d[2]),  # down-right
+        for d in data:
+            v =  [
+                (cats[d[0]]-.4, d[1]),  # down-left
+                (cats[d[0]]+.4, d[1]),  # upper-left
+                (cats[d[0]]+.3, d[2]),  # upper-right
+                (cats[d[0]]-.3, d[2]),  # down-right
+            ]
+            verts.append(v)
+        
+        ax.set_xticks(list(range(len(coros))))
+        ax.set_xticklabels(coros, fontsize='xx-small',rotation='vertical')
+    else: 
+        coro_periods = {}
+
+        for d in data:
+            coro_periods[d[0]] = (
+                min(d[1], coro_periods.get(d[0], (float('inf'),))[0]),
+                max(d[2], coro_periods.get(d[0], (None, float('-inf')))[1]),
+            )
+        
+        verts = [
+            [
+                (cats[d]-.4, start),  # down-left
+                (cats[d]+.4, start),  # down-right
+                (cats[d]+.3, end),  # upper-right
+                (cats[d]-.3, end),  # upper-left
+            ]
+            for d, (start, end) in coro_periods.items()
         ]
-        verts.append(v)
 
-    bars = PolyCollection(verts,) 
+    bars = PolyCollection(verts,)
+    max_d = max(data, key=lambda x: x[2])
 
     ax.add_collection(bars)
+    ax.text(0, max_d[2], str(max_d[2]))
+    
     ax.autoscale()
-
-    ax.set_xticks(list(range(len(coros))))
-    ax.set_xticklabels(coros, fontsize='xx-small',rotation='vertical')
     ax.set_title(f'{mode} coro-count:{coroutines_count} \ncoro-limit:{coroutines_limit} await-count:{await_count}', fontsize='xx-small')
     # plt.savefig(f'{mode}-{coroutines_count}-{coroutines_limit}-{await_count}.png')
     # plt.close()
@@ -130,5 +152,5 @@ if __name__ == '__main__':
         for axe, mode in zip(axs, [Modes.gather, Modes.chunked_gather, Modes.sem_gather, Modes.queue]):
             add_plot(coroutines_count=cc, coroutines_limit=cl, await_count=ac, mode=mode, ax=axe)
 
-        plt.savefig(f'random_/plots/{cc}-{cl}-{ac}.png', dpi=400)
+        plt.savefig(f'random_/plots/9x10/{cc}-{cl}-{ac}.svg')
         # plt.show()
